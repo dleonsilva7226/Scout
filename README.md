@@ -1,72 +1,74 @@
-# Scoutly
+<div align="center">
 
-**Paste a job link → Scoutly parses it → a new row appears in your job tracker.**
+# 🧭 Scoutly
 
-Scoutly is an AI agent that reads job postings from any career site (Workday, Greenhouse, Lever, etc.) and logs structured job details directly into a Google Sheet. It automates the most painful part of job searching: manually copying fields into a tracker.
+**Paste a job link → Scoutly parses it → a new row appears in your job tracker.**  
+Turn messy job postings into structured data — automatically.
 
----
-
-## What Scoutly Does
-
-- Accepts a job posting URL
-- Fetches and reads the page
-- Extracts structured job info (company, role, location, level, remote type, ATS type, job ID, etc.)
-- Appends a row to a Google Sheet with the correct column order
-- Leaves missing fields blank rather than fabricating values
+</div>
 
 ---
 
-## Architecture
+## 🔥 Overview
+
+Scoutly is an AI agent that extracts job details from any career site and syncs them directly into a Google Sheet.  
+It removes the most tedious part of job hunting: manually copying fields from Workday / Greenhouse / Lever into a tracker.
+
+---
+
+## ⚙️ How it Works
 
 User
 ↓
 LlamaIndex Agent
 ↓
-Tool Calls
+Tools
 ├─ fetch_job_page(url)
 ├─ extract_job_info(text)
 └─ log_job_to_sheet(record)
 
-yaml
-Copy code
 
-The agent — not hardcoded pipeline logic — determines which tool to call and when.
+The agent orchestrates tool calls based on the goal — not a hardcoded pipeline.
 
 ---
 
-## Schema
+## 📌 Data Model
 
-Scoutly writes each job entry using the following structure (column order should match your sheet):
+Each job entry is logged using the following schema:
 
-Company
-RoleTitle
-Level
-Location
-RemoteType
-JobURL
-JobID
-ATSType
-PostedDate
-ExperienceRequiredYears
-Status
-Tags
-Notes
+| Field | Description |
+|--------|-------------|
+| Company | Employer name |
+| RoleTitle | Job title shown on posting |
+| Level | Intern / New Grad / Junior / etc. |
+| Location | City / State / Region |
+| RemoteType | Onsite / Hybrid / Remote |
+| JobURL | Direct link to job posting |
+| JobID | Req ID or Job number if available |
+| ATSType | Workday, Greenhouse, Lever, Other |
+| PostedDate | If detectable |
+| ExperienceRequiredYears | Parsed from qualifications |
+| Status | Defaults to `Planned` |
+| Tags | Keywords extracted |
+| Notes | Optional free text |
 
-yaml
-Copy code
-
----
-
-## Tech Stack
-
-- LlamaIndex (agent + structured extraction)
-- OpenAI (configurable)
-- Google Sheets API
-- Optional: Playwright for JavaScript-rendered career sites
+The Google Sheet should match this column order.
 
 ---
 
-## Usage
+## 🧰 Tech Stack
+
+| Component | Tool |
+|----------|------|
+| Agent orchestration | LlamaIndex |
+| Model | OpenAI (configurable) |
+| Data extraction | Structured output program |
+| Storage | Google Sheets API |
+| Optional | Playwright for JS-rendered pages |
+
+---
+
+## 🚀 Usage
 
 ```bash
 python main.py "https://careers.company.com/job/12345"
@@ -74,32 +76,23 @@ python main.py "https://careers.company.com/job/12345"
 
 Example output:
 
-pgsql
-Copy code
 Logged Software Engineer — New Grad at Capital One to your tracker.
-Roadmap
+
+🗺️ Roadmap
+
 Dashboard for visualizing the job pipeline
 
-Status updater (tracks OA / interviews / offers)
+Automatic status updates (OA → interviews → offers)
 
 Tagging + priority scoring
 
-Assisted application autofill (manual approval only)
+Assisted application autofill (with manual confirmation)
 
-Resume/project matching for tailored written answers
+Resume & project matching for written-answer fields
 
-Notes
-Scoutly does not submit job applications on behalf of the user.
-It only extracts and logs job information to support organized and intentional job searching.
+🔒 Notes
 
-License
-MIT
+Scoutly never submits applications automatically.
+It only extracts and logs job information so users can stay organized and intentional.
 
-yaml
-Copy code
-
----
-- A GitHub description + tagline
-- A logo + Figma color palette
-
-Just say which one you want next.
+<div align="center"> MIT License • Made for developers on the job hunt </div> ```
