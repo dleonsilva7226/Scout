@@ -18,21 +18,25 @@ Scoutly is an AI agent that reads job postings from any career site (Workday, Gr
 
 ## Architecture
 
-User → LlamaIndex Agent → Tool Calls
-├ fetch_job_page(url)
-├ extract_job_info(text)
-└ log_job_to_sheet(record)
+User
+↓
+LlamaIndex Agent
+↓
+Tool Calls
+├─ fetch_job_page(url)
+├─ extract_job_info(text)
+└─ log_job_to_sheet(record)
 
 yaml
 Copy code
 
-The agent—not hardcoded logic—decides which tool to call and when.
+The agent — not hardcoded pipeline logic — determines which tool to call and when.
 
 ---
 
 ## Schema
 
-Scoutly writes jobs to the sheet using the following structure:
+Scoutly writes each job entry using the following structure (column order should match your sheet):
 
 Company
 RoleTitle
@@ -51,8 +55,6 @@ Notes
 yaml
 Copy code
 
-The Google Sheet should use this column order for best results.
-
 ---
 
 ## Tech Stack
@@ -60,7 +62,7 @@ The Google Sheet should use this column order for best results.
 - LlamaIndex (agent + structured extraction)
 - OpenAI (configurable)
 - Google Sheets API
-- Optional: Playwright for JS-rendered sites
+- Optional: Playwright for JavaScript-rendered career sites
 
 ---
 
@@ -68,7 +70,9 @@ The Google Sheet should use this column order for best results.
 
 ```bash
 python main.py "https://careers.company.com/job/12345"
-Example response:
+```
+
+Example output:
 
 pgsql
 Copy code
@@ -82,11 +86,11 @@ Tagging + priority scoring
 
 Assisted application autofill (manual approval only)
 
-Resume/project matching for custom written answers
+Resume/project matching for tailored written answers
 
 Notes
-Scoutly does not submit applications on your behalf.
-It only extracts and logs job data so you can make intentional decisions during recruiting.
+Scoutly does not submit job applications on behalf of the user.
+It only extracts and logs job information to support organized and intentional job searching.
 
 License
 MIT
@@ -95,11 +99,6 @@ yaml
 Copy code
 
 ---
-
-If you want, I can now generate:
-- A matching `.env.example` file
-- Folder structure template
-- Badges for the top of the README
 - A GitHub description + tagline
 - A logo + Figma color palette
 
