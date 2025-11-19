@@ -1,0 +1,4 @@
+ollama==0.6.1
+python-dotenv==1.2.1
+llama-index==0.14.8
+pytest==9.0.1
