@@ -76,10 +76,12 @@ python main.py "https://careers.company.com/job/12345"
 ```
 
 Example output:
-
+```
 Logged Software Engineer — New Grad at Capital One to your tracker.
+```
 
 🗺️ Roadmap
+---
 
 Dashboard for visualizing the job pipeline
 
@@ -92,6 +94,7 @@ Assisted application autofill (with manual confirmation)
 Resume & project matching for written-answer fields
 
 🔒 Notes
+---
 
 Scoutly never submits applications automatically.
 It only extracts and logs job information so users can stay organized and intentional.
