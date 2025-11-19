@@ -1,0 +1,35 @@
+version: 2
+updates:
+  # Python dependency upgrades (requirements.txt)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    groups:
+      testing:
+        patterns:
+          - "pytest*"
+          - "ruff"
+          - "mypy"
+      core:
+        dependency-type: "production"
+
+  # GitHub Actions workflow upgrades
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:30"
+    labels:
+      - "dependencies"
+      - "github-actions"
