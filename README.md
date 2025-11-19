@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🧭 Scoutly
+# 🧭 Scout
 
 **Paste a job link → Scoutly parses it → a new row appears in your job tracker.**  
 Turn messy job postings into structured data — automatically.
