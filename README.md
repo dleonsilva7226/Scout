@@ -72,7 +72,6 @@ The Google Sheet should match this column order.
 
 ```bash
 python main.py "https://careers.company.com/job/12345"
-```
 
 Example output:
 
@@ -95,4 +94,4 @@ Resume & project matching for written-answer fields
 Scoutly never submits applications automatically.
 It only extracts and logs job information so users can stay organized and intentional.
 
-<div align="center"> MIT License • Made for developers on the job hunt </div> ```
+<div align="center"> MIT License • Made for developers on the job hunt </div>```
