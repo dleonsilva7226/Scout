@@ -18,6 +18,7 @@ It removes the most tedious part of job hunting: manually copying fields from Wo
 
 ## ⚙️ How it Works
 
+```
 User
 ↓
 LlamaIndex Agent
@@ -26,7 +27,7 @@ Tools
 ├─ fetch_job_page(url)
 ├─ extract_job_info(text)
 └─ log_job_to_sheet(record)
-
+```
 
 The agent orchestrates tool calls based on the goal — not a hardcoded pipeline.
 
