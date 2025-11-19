@@ -83,15 +83,11 @@ Logged Software Engineer — New Grad at Capital One to your tracker.
 🗺️ Roadmap
 ---
 
-Dashboard for visualizing the job pipeline
-
-Automatic status updates (OA → interviews → offers)
-
-Tagging + priority scoring
-
-Assisted application autofill (with manual confirmation)
-
-Resume & project matching for written-answer fields
+- Dashboard for visualizing the job pipeline
+- Automatic status updates (OA → interviews → offers)
+- Tagging + priority scoring
+- Assisted application autofill (with manual confirmation)
+- Resume & project matching for written-answer fields
 
 🔒 Notes
 ---
