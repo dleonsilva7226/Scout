@@ -10,7 +10,6 @@ fi
 
 # Activate venv
 echo "[+] Activating virtual environment..."
-# shellcheck disable=SC1091
 source .venv/bin/activate
 
 # Upgrade pip
@@ -24,6 +23,14 @@ if [ -f "requirements.txt" ]; then
 else
   echo "[!] requirements.txt not found!"
   exit 1
+fi
+
+# Install dev dependencies if file exists
+if [ -f "dev-requirements.txt" ]; then
+  echo "[+] Installing development dependencies from dev-requirements.txt..."
+  pip install -r dev-requirements.txt
+else
+  echo "[i] No dev-requirements.txt found — skipping dev deps."
 fi
 
 echo "[✓] Environment ready."
