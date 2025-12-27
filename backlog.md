@@ -17,12 +17,25 @@ This document tracks all planned features, improvements, and technical debt for 
 #### ✅ EX-001: Basic Job Extraction
 - **Status**: ✅ Done
 - **Priority**: 🔴 High
-- **Description**: Implement basic job posting extraction using LlamaIndex structured output
+- **Description**: Implement basic job posting extraction using LlamaIndex structured output. Extract structured data from job posting text into JobInfo model.
 - **Acceptance Criteria**:
-  - [x] `extract_job_info()` function implemented
+  - [x] `get_job_info_program()` creates and returns LlamaIndex structured output program
+  - [x] `extract_job_info(text: str)` function implemented and calls the program
   - [x] JobInfo model with all required fields
-  - [x] Integration with LlamaIndex structured program
+  - [x] Enum definitions implemented: `JobLevel`, `RemoteType`, `AtsType`
+  - [x] Text preprocessing integration (normalize_html_text, find_heading_positions, slice_by_positions)
+  - [x] Error handling for extraction failures (invalid text, API errors, parsing errors)
+  - [x] Unit tests passing (test_extractor.py updated and active)
+  - [x] Integration with `run_scout_agent()` pipeline
 - **Files**: `src/scout/tools/extractor.py`, `src/scout/models.py`
+- **Dependencies**: 
+  - LlamaIndex structured output setup
+  - OpenAI API key configured
+  - JobInfo model structure finalized
+- **Technical Notes**:
+  - Helper functions exist (`normalize_html_text`, `find_heading_positions`, `slice_by_positions`) but need integration
+  - Test file shows expected behavior: program should accept text and return JobInfo
+  - Consider caching program instance for performance
 
 #### 🚧 EX-002: HTML Fetching and Cleaning
 - **Status**: 🚧 In Progress

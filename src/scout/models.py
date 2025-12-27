@@ -2,11 +2,32 @@
 from enum import Enum
 from pydantic import BaseModel
 
-class JobLevel(Enum): ...
+class JobLevel(Enum):
+    """Job experience level"""
+    INTERN = "intern"
+    ENTRY = "entry"
+    MID = "mid"
+    SENIOR = "senior"
+    STAFF = "staff"
+    PRINCIPAL = "principal"
+    EXECUTIVE = "executive"
 
-class RemoteType(Enum): ...
+class RemoteType(Enum):
+    """Remote work arrangement type"""
+    ON_SITE = "on_site"
+    REMOTE = "remote"
+    HYBRID = "hybrid"
+    FLEXIBLE = "flexible"
 
-class AtsType(Enum): ...
+class AtsType(Enum):
+    """Applicant Tracking System type"""
+    GREENHOUSE = "greenhouse"
+    LEVER = "lever"
+    WORKDAY = "workday"
+    TALEO = "taleo"
+    ICIMS = "icims"
+    CUSTOM = "custom"
+    UNKNOWN = "unknown"
 
 
 class JobInfo(BaseModel):
