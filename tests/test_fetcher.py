@@ -27,7 +27,7 @@ class TestFetchJobPage:
         result = fetch_job_page("https://example.com/job/123")
         
         assert result == "<html><body><h1>Job Title</h1></body></html>"
-        mock_page.goto.assert_called_once_with("https://example.com/job/123", wait_until="networkidle")
+        mock_page.goto.assert_called_once_with("https://example.com/job/123", wait_until="networkidle", timeout=20000)
         mock_browser.new_page.assert_called_once()
         mock_playwright_instance.chromium.launch.assert_called_once_with(headless=True)
     
@@ -134,7 +134,7 @@ class TestFetchJobPage:
         
         for url in urls:
             fetch_job_page(url)
-            mock_page.goto.assert_called_with(url, wait_until="networkidle")
+            mock_page.goto.assert_called_with(url, wait_until="networkidle", timeout=20000)
         
         assert mock_page.goto.call_count == len(urls)
     

@@ -46,5 +46,7 @@ def run_scout_agent(url: str, worksheet) -> JobInfo:
         return job_info
         
     except Exception as e:
-        logger.error(f"Pipeline failed for URL {url}: {e}")
+        # Import sanitization function
+        from scout.tools.extractor import _sanitize_error_message
+        logger.error(f"Pipeline failed for URL {url}: {_sanitize_error_message(str(e))}")
         raise RuntimeError(f"Job extraction pipeline failed: {e}") from e
