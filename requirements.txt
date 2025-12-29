@@ -1,11 +1,11 @@
 ollama==0.6.1
 python-dotenv==1.2.1
-llama-index-core==0.14.8
+llama-index-core==0.14.10
 llama-index-llms-ollama>=0.1.0
-llama-index-llms-openai==0.6.9  # Optional fallback
+llama-index-llms-openai==0.6.12  # Optional fallback
 llama-index-embeddings-openai==0.5.1
 llama-index-readers-llama-parse==0.5.1
-llama-parse==0.6.54
+llama-parse==0.6.88
 beautifulsoup4>=4.12.0
 pydantic>=2.5.0
 google-api-python-client>=2.187.0
