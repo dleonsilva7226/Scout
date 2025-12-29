@@ -20,6 +20,9 @@ cd scout
 cp .env.example .env
 # Add your OpenAI and Google Sheets API keys
 
+# Set up Google Sheets OAuth
+python scripts/sheets_oauth_bootstrap.py
+
 # Initialize
 python -m scout.rag.init_db
 python main.py profile add resume.pdf
@@ -32,6 +35,9 @@ python main.py analyze "https://careers.example.com/job/123"
 ```bash
 # Extract job to spreadsheet
 python main.py extract [url]
+
+# Log job to Google Sheets (full pipeline)
+python test_sheets_e2e.py "https://careers.example.com/job/123"
 
 # Analyze job match
 python main.py analyze [url]
@@ -50,6 +56,18 @@ python main.py insights
 > Best day to apply: Tuesday
 > Add Kubernetes cert (in 67% of rejections)
 ```
+
+## Google Sheets Integration
+
+Scout automatically logs extracted job information to your Google Sheets tracker. 
+
+**Setup:**
+1. Run `python scripts/sheets_oauth_bootstrap.py` to authenticate with Google Sheets
+2. Configure your spreadsheet ID in `.env` (or use the default)
+
+**Usage:**
+- `python test_sheets_e2e.py [job_url]` - Full pipeline: fetch → extract → log to sheets
+- Jobs are automatically logged with today's date and "to_apply" status
 
 ## How It Works
 ```mermaid

@@ -1,69 +1,146 @@
-# # tests/test_tracker.py
+"""Unit tests for Google Sheets tracker integration"""
+from datetime import datetime
+from unittest.mock import Mock
 
-# from src.scout.models import JobInfo, JobLevel, RemoteType, AtsType
-# from src.scout.tools.tracker import log_job_to_sheet
-
-# class FakeWorksheet:
-#     def __init__(self) -> None:
-#         self.append_calls: list[list[str]] = []
-
-#     def append_row(self, values, value_input_option="RAW"):
-#         # Only care about the row values for now
-#         self.append_calls.append(values)
-
-# def make_job() -> JobInfo:
-#     # Use whatever defaults you like; this mirrors your sheet pattern
-#     return JobInfo(
-#         company="IBM",
-#         contact_person="HR",
-#         title="Entry Level Web Developer",
-#         location="On-site",               # matches your dropdown label
-#         salary="78 - 144K",               # could be str, that’s fine
-#         url="https://ibm.example/job",
-#         date_applied="22 Oct",
-#         date_confirmation=None,
-#         date_latest_reply=None,
-#         status="Wait for reply",
-#         reason_outcome=None,
-#         level=JobLevel.NEW_GRAD,
-#         remote_type=RemoteType.ON_SITE,
-#         ats=AtsType.WORKDAY,
-#     )
-
-# def test_log_job_to_sheet_appends_row_with_correct_columns():
-#     ws = FakeWorksheet()
-#     job = make_job()
-
-#     log_job_to_sheet(job, ws)
-
-#     assert len(ws.append_calls) == 1
-#     row = ws.append_calls[0]
-
-#     # Expect EXACT order to match Google Sheet columns
-#     assert row[0] == job.company
-#     assert row[1] == job.contact_person
-#     assert row[2] == job.title
-#     assert row[3] == job.location
-#     assert row[4] == job.salary
-#     assert row[5] == job.url
-#     assert row[6] == job.date_applied
-#     assert row[7] == (job.date_confirmation or "")
-#     assert row[8] == (job.date_latest_reply or "")
-#     assert row[9] == job.status
-#     assert row[10] == (job.reason_outcome or "")
+from scout.models import JobInfo, JobLevel, RemoteType, AtsType
+from scout.tools.tracker import log_job_to_sheet
 
 
-# def test_log_job_to_sheet_handles_optional_fields_as_empty_strings():
-#     ws = FakeWorksheet()
-#     job = make_job()
-#     job.date_confirmation = None
-#     job.date_latest_reply = None
-#     job.reason_outcome = None
+class FakeWorksheet:
+    """Mock worksheet for testing"""
+    def __init__(self):
+        self.append_calls = []
 
-#     log_job_to_sheet(job, ws)
+    def append_row(self, values, value_input_option="RAW"):
+        self.append_calls.append(values)
 
-#     row = ws.append_calls[0]
 
-#     assert row[7] == ""   # Date confirmation
-#     assert row[8] == ""   # Date latest reply
-#     assert row[10] == ""  # Reason outcome
+def test_log_job_to_sheet_column_order():
+    """Test that columns are in the correct order"""
+    ws = FakeWorksheet()
+    job = JobInfo(
+        company="TestCo",
+        contact_person="Jane Doe",
+        title="Software Engineer",
+        location="San Francisco, CA",
+        salary="$100k",
+        url="https://test.com/job",
+        date_applied=None,
+        date_confirmation=None,
+        date_latest_reply=None,
+        status=None,
+        reason_outcome=None,
+        level=JobLevel.SENIOR,
+        remote_type=RemoteType.REMOTE,
+        ats=AtsType.GREENHOUSE,
+    )
+
+    log_job_to_sheet(job, ws)
+
+    assert len(ws.append_calls) == 1
+    row = ws.append_calls[0]
+    
+    assert row[0] == "TestCo"
+    assert row[1] == "Jane Doe"
+    assert row[2] == "Software Engineer"
+    assert row[3] == "San Francisco, CA"
+    assert row[4] == "$100k"
+    assert row[5] == "https://test.com/job"
+    assert row[6]  # date_applied auto-populated
+    assert row[7] == ""  # date_confirmation
+    assert row[8] == ""  # date_latest_reply
+    assert row[9] == "to_apply"  # status default
+    assert row[10] == ""  # reason_outcome
+    assert row[11] == "senior"  # level enum value
+    assert row[12] == "remote"  # remote_type enum value
+    assert row[13] == "greenhouse"  # ats enum value
+
+
+def test_log_job_to_sheet_defaults():
+    """Test auto-populated default values"""
+    ws = FakeWorksheet()
+    job = JobInfo(
+        company="TestCo",
+        contact_person=None,
+        title="Engineer",
+        location="Remote",
+        salary=None,
+        url="https://test.com/job",
+        date_applied=None,
+        date_confirmation=None,
+        date_latest_reply=None,
+        status=None,
+        reason_outcome=None,
+        level=None,
+        remote_type=None,
+        ats=None,
+    )
+
+    log_job_to_sheet(job, ws)
+
+    row = ws.append_calls[0]
+    today = datetime.now().strftime("%Y-%m-%d")
+    
+    assert row[6] == today  # date_applied defaults to today
+    assert row[9] == "to_apply"  # status defaults to "to_apply"
+    assert row[13] == "unknown"  # ats defaults to "unknown"
+
+
+def test_log_job_to_sheet_optional_fields():
+    """Test handling of optional fields"""
+    ws = FakeWorksheet()
+    job = JobInfo(
+        company="TestCo",
+        contact_person=None,
+        title="Engineer",
+        location="Remote",
+        salary=None,
+        url="https://test.com/job",
+        date_applied=None,
+        date_confirmation=None,
+        date_latest_reply=None,
+        status=None,
+        reason_outcome=None,
+        level=None,
+        remote_type=None,
+        ats=None,
+    )
+
+    log_job_to_sheet(job, ws)
+
+    row = ws.append_calls[0]
+    assert row[1] == ""  # contact_person
+    assert row[4] == ""  # salary
+    assert row[7] == ""  # date_confirmation
+    assert row[8] == ""  # date_latest_reply
+    assert row[10] == ""  # reason_outcome
+    assert row[11] == ""  # level
+    assert row[12] == ""  # remote_type
+
+
+def test_log_job_to_sheet_preserves_existing_values():
+    """Test that existing values are preserved"""
+    ws = FakeWorksheet()
+    job = JobInfo(
+        company="TestCo",
+        contact_person=None,
+        title="Engineer",
+        location="Remote",
+        salary=None,
+        url="https://test.com/job",
+        date_applied="2024-01-15",
+        date_confirmation=None,
+        date_latest_reply=None,
+        status="applied",
+        reason_outcome=None,
+        level=None,
+        remote_type=None,
+        ats=AtsType.LEVER,
+    )
+
+    log_job_to_sheet(job, ws)
+
+    row = ws.append_calls[0]
+    assert row[6] == "2024-01-15"  # Preserved date_applied
+    assert row[9] == "applied"  # Preserved status
+    assert row[13] == "lever"  # Preserved ats

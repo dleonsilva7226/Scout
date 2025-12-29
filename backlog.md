@@ -37,29 +37,38 @@ This document tracks all planned features, improvements, and technical debt for 
   - Test file shows expected behavior: program should accept text and return JobInfo
   - Consider caching program instance for performance
 
-#### 🚧 EX-002: HTML Fetching and Cleaning
-- **Status**: 🚧 In Progress
+#### ✅ EX-002: HTML Fetching and Cleaning
+- **Status**: ✅ Done
 - **Priority**: 🔴 High
 - **Description**: Robust HTML fetching with Playwright for JS-heavy sites and text normalization
 - **Acceptance Criteria**:
-  - [ ] `fetch_job_page()` handles both static and dynamic content
-  - [ ] Text cleaning removes noise and normalizes formatting
-  - [ ] Error handling for network failures and timeouts
-  - [ ] Support for common job board formats
-- **Files**: `src/scout/tools/fetcher.py`, `src/scout/utils/text_cleaning.py`
+  - [x] `fetch_job_page()` handles both static and dynamic content (uses Playwright with networkidle/domcontentloaded fallback, waits for JS rendering)
+  - [x] Text cleaning removes noise and normalizes formatting (`normalize_html_text()` in extractor.py)
+  - [x] Error handling for network failures and timeouts (try/except with PlaywrightTimeoutError, multiple fallback strategies)
+  - [x] Support for common job board formats (generic Playwright approach works for most sites)
+- **Files**: `src/scout/tools/fetcher.py`, `src/scout/tools/extractor.py` (normalize_html_text)
 - **Dependencies**: Playwright installation
+- **Notes**: 
+  - `fetch_job_page()` implemented with robust error handling and fallback strategies
+  - `normalize_html_text()` handles basic text cleaning (HTML parsing, whitespace normalization, character normalization)
+  - `src/scout/utils/text_cleaning.py` exists but is a stub - functionality is in `extractor.py`
 
 #### 📋 EX-003: Google Sheets Integration
-- **Status**: 📋 Backlog
+- **Status**: ✅ Done
 - **Priority**: 🔴 High
 - **Description**: Log extracted job data to Google Sheets for tracking
 - **Acceptance Criteria**:
-  - [ ] `log_job_to_sheet()` appends JobInfo to spreadsheet
-  - [ ] Column order matches JobInfo model exactly
-  - [ ] Handles authentication and permissions
-  - [ ] Error handling for API rate limits
+  - [x] `log_job_to_sheet()` appends JobInfo to spreadsheet
+  - [x] Column order matches JobInfo model exactly
+  - [x] Handles authentication and permissions
+  - [x] Error handling for API rate limits
 - **Files**: `src/scout/tools/tracker.py`
 - **Dependencies**: Google Sheets API credentials
+- **Notes**: 
+  - OAuth authentication with automatic token refresh
+  - Exponential backoff retry logic for rate limits
+  - Auto-populates `date_applied`, `status` (to_apply), and `ats` (unknown) defaults
+  - HTML cleaning and truncation added to handle large job postings
 
 ### RAG Foundation
 

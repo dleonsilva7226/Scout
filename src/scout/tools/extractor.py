@@ -293,12 +293,40 @@ def slice_by_positions(text_raw: str, text_norm: str, positions: dict[str, int])
     return sections
 
 
+def _clean_and_truncate_html(html: str, max_chars: int = 300000) -> str:
+    """
+    Clean HTML and extract text, truncating if necessary.
+    
+    Args:
+        html: Raw HTML string
+        max_chars: Maximum characters to keep (default: 300k ~ 100k tokens)
+        
+    Returns:
+        Cleaned text string
+    """
+    soup = BeautifulSoup(html, "html.parser")
+    
+    # Remove script, style, and other non-content elements
+    for element in soup(["script", "style", "nav", "footer", "header", "aside", "noscript"]):
+        element.decompose()
+    
+    # Extract text
+    text = soup.get_text(separator="\n", strip=True)
+    
+    # Truncate if too long (keep first max_chars)
+    if len(text) > max_chars:
+        logger.warning(f"Text too long ({len(text)} chars), truncating to {max_chars} chars")
+        text = text[:max_chars] + "\n[... truncated ...]"
+    
+    return text
+
+
 def extract_job_info(text: str, url: str = "unknown") -> JobInfo:
     """
     Convert cleaned job description text into a JobInfo model.
     
     Args:
-        text: Cleaned job description text
+        text: Raw HTML or cleaned job description text
         url: Job posting URL (default: "unknown")
         
     Returns:
@@ -315,9 +343,17 @@ def extract_job_info(text: str, url: str = "unknown") -> JobInfo:
     try:
         program = get_job_info_program()
         
-        # Preprocess text: normalize HTML if present, otherwise use as-is
-        # LLM works better with original formatting
-        text_for_extraction = text.strip()
+        # Clean HTML and truncate if needed (handles large pages)
+        if "<html" in text.lower() or "<body" in text.lower():
+            text_for_extraction = _clean_and_truncate_html(text)
+        else:
+            # Already text, just truncate if too long
+            max_chars = 300000
+            if len(text) > max_chars:
+                logger.warning(f"Text too long ({len(text)} chars), truncating to {max_chars} chars")
+                text_for_extraction = text[:max_chars] + "\n[... truncated ...]"
+            else:
+                text_for_extraction = text.strip()
         
         # Run the structured extraction
         # If Ollama hits rate limits, catch and retry with OpenAI
@@ -387,40 +423,59 @@ Return only valid data. If information is not available, use null for optional f
                 raise
         
         try:
-            # Fix enum values if LLM returned them as strings like "JobLevel.ENTRY"
-            # Convert to actual enum instances
+            # Fix enum values if LLM returned them as strings
+            # The LLM should return lowercase string values (e.g., "entry", "hybrid", "greenhouse")
+            # Convert to actual enum instances by matching against enum values or names
+            
             if result.level and isinstance(result.level, str):
-                if result.level.startswith("JobLevel."):
-                    enum_name = result.level.split(".")[-1].upper()
-                    try:
-                        result.level = JobLevel[enum_name]
-                    except (KeyError, AttributeError):
-                        logger.warning(f"Invalid level enum: {result.level}, setting to None")
-                        result.level = None
-                elif result.level.upper() in [e.name for e in JobLevel]:
-                    result.level = JobLevel[result.level.upper()]
+                level_str = result.level.strip().lower()
+                # Try to match by enum value first (e.g., "entry" -> JobLevel.ENTRY)
+                matched = False
+                for level_enum in JobLevel:
+                    if level_enum.value.lower() == level_str:
+                        result.level = level_enum
+                        matched = True
+                        break
+                    # Also try matching by enum name (e.g., "ENTRY" -> JobLevel.ENTRY)
+                    if level_enum.name.upper() == level_str.upper():
+                        result.level = level_enum
+                        matched = True
+                        break
+                if not matched:
+                    logger.warning(f"Invalid level value: {result.level}, setting to None")
+                    result.level = None
             
             if result.remote_type and isinstance(result.remote_type, str):
-                if result.remote_type.startswith("RemoteType."):
-                    enum_name = result.remote_type.split(".")[-1].upper()
-                    try:
-                        result.remote_type = RemoteType[enum_name]
-                    except (KeyError, AttributeError):
-                        logger.warning(f"Invalid remote_type enum: {result.remote_type}, setting to None")
-                        result.remote_type = None
-                elif result.remote_type.upper() in [e.name for e in RemoteType]:
-                    result.remote_type = RemoteType[result.remote_type.upper()]
+                remote_str = result.remote_type.strip().lower()
+                matched = False
+                for remote_enum in RemoteType:
+                    if remote_enum.value.lower() == remote_str:
+                        result.remote_type = remote_enum
+                        matched = True
+                        break
+                    if remote_enum.name.upper() == remote_str.upper():
+                        result.remote_type = remote_enum
+                        matched = True
+                        break
+                if not matched:
+                    logger.warning(f"Invalid remote_type value: {result.remote_type}, setting to None")
+                    result.remote_type = None
             
             if result.ats and isinstance(result.ats, str):
-                if result.ats.startswith("AtsType."):
-                    enum_name = result.ats.split(".")[-1].upper()
-                    try:
-                        result.ats = AtsType[enum_name]
-                    except (KeyError, AttributeError):
-                        logger.warning(f"Invalid ats enum: {result.ats}, setting to None")
-                        result.ats = None
-                elif result.ats.upper() in [e.name for e in AtsType]:
-                    result.ats = AtsType[result.ats.upper()]
+                ats_str = result.ats.strip().lower()
+                matched = False
+                for ats_enum in AtsType:
+                    if ats_enum.value.lower() == ats_str:
+                        result.ats = ats_enum
+                        matched = True
+                        break
+                    if ats_enum.name.upper() == ats_str.upper():
+                        result.ats = ats_enum
+                        matched = True
+                        break
+                if not matched:
+                    logger.warning(f"Invalid ats value: {result.ats}, setting to None")
+                    result.ats = None
                     
         except ValidationError as ve:
             # Catch ValidationError from program/JobInfo creation
