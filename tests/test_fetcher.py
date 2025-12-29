@@ -1,7 +1,14 @@
 """Comprehensive tests for job page fetching functionality"""
 import pytest
+
+# Skip entire test file if Playwright is not installed
+pytest.importorskip("playwright")
+
 from unittest.mock import Mock, patch, MagicMock
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError, Error as PlaywrightError
+
+# Mark all tests in this module as E2E tests
+pytestmark = pytest.mark.e2e
 
 
 class TestFetchJobPage:

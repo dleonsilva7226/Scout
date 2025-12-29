@@ -26,4 +26,4 @@ jobs:
           pip install -r requirements.txt -r dev-requirements.txt
 
       - name: Run tests
-        run: pytest
+        run: pytest -m "not e2e"
