@@ -18,8 +18,15 @@ class TestGetJobInfoProgram:
             call_count["count"] += 1
             return Mock()
         
+        # Mock LLM to avoid needing API keys
+        mock_llm = Mock()
+        
         monkeypatch.setattr(extractor, "STRUCTURED_PROGRAM_AVAILABLE", True)
         monkeypatch.setattr(extractor, "validate_config", lambda: True)
+        monkeypatch.setattr(extractor, "OLLAMA_AVAILABLE", False)
+        monkeypatch.setattr(extractor, "OPENAI_AVAILABLE", True)
+        monkeypatch.setattr(extractor, "OPENAI_API_KEY", "test-key")
+        monkeypatch.setattr(extractor, "OpenAI", lambda **kwargs: mock_llm)
         monkeypatch.setattr(
             "scout.tools.extractor.StructuredLLMProgram.from_defaults",
             lambda **kwargs: fake_program_factory()
